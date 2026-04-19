@@ -11,7 +11,6 @@ type AdminFixtures = {
 
 export const test = base.extend<AdminFixtures>({
   adminPage: async ({ page }, use) => {
-    // Login + vào trang admin
     const homePage = new HomePage(page)
     await homePage.open()
     await homePage.openLoginModal()
@@ -22,10 +21,14 @@ export const test = base.extend<AdminFixtures>({
     await homePage.avatarBtn.click()
 
     const adminMenuItem = page.getByRole('link', { name: /To page Admin/i })
-    await expect(adminMenuItem).toBeVisible()
+
+    // ✅ Tăng timeout lên 15s — tránh lỗi khi server chậm
+    await expect(adminMenuItem).toBeVisible({ timeout: 15000 })
     await adminMenuItem.click()
 
-    // Trả về adminPage đã sẵn sàng
+    // ✅ Chờ trang admin load xong trước khi trả về
+    await page.waitForURL(/\/admin/, { timeout: 15000 })
+
     const adminPage = new AdminPage(page)
     await use(adminPage)
   }

@@ -1,11 +1,10 @@
-import { Location, Locator, Page } from '@playwright/test'
+import { Locator, Page } from '@playwright/test'
+import { highlightStep } from '../tests/utils/highlightStep'
 
 export class LoginModal {
     readonly page: Page
 
-    // popup login
     readonly modal: Locator
-
     readonly emailInput: Locator
     readonly passwordInput: Locator
     readonly loginBtn: Locator
@@ -14,17 +13,18 @@ export class LoginModal {
         this.page = page
         this.modal = this.page.locator('.ant-modal-content')
         this.emailInput = this.modal.locator('#email')
-        // cách 2: tìm theo attribute name
-        // this.emailInput = this.modal.locator('input[name="email"]')
         this.passwordInput = this.modal.locator('#password')
-        // cách 2: getByRole
-        // this.passwordInput = this.modal.getByRole('textbox', {name: 'Password'})
-        this.loginBtn = this.modal.getByRole('button', {name: 'Đăng nhập'})
+        this.loginBtn = this.modal.getByRole('button', { name: 'Đăng nhập' })
     }
 
     async login(email: string, password: string) {
+        await highlightStep(this.page, this.emailInput, 200)
         await this.emailInput.fill(email)
+
+        await highlightStep(this.page, this.passwordInput, 200)
         await this.passwordInput.fill(password)
+
+        await highlightStep(this.page, this.loginBtn, 200)
         await this.loginBtn.click()
     }
 }

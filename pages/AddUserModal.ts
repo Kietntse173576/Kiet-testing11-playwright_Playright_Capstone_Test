@@ -1,6 +1,5 @@
-
-
 import { Locator, Page, expect } from '@playwright/test'
+import { highlightStep } from '../tests/utils/highlightStep'
 
 export class AddUserModal {
     readonly page: Page
@@ -25,11 +24,9 @@ export class AddUserModal {
     constructor(page: Page) {
         this.page = page
 
-        // ✅ Scope theo ant-modal-wrap (wrap bao ngoài, không bị duplicate display issue)
         this.addModal = page.locator('.ant-modal-wrap').filter({ hasText: 'Thêm người dùng' })
         this.updateModal = page.locator('.ant-modal-wrap').filter({ hasText: 'Cập nhật người dùng' })
 
-        // Inputs scope trong addModal
         this.nameInput = this.addModal.locator('#name')
         this.emailInput = this.addModal.locator('#email')
         this.phoneInput = this.addModal.locator('#phone')
@@ -40,7 +37,6 @@ export class AddUserModal {
         this.userRole = this.addModal.getByText('User', { exact: true })
         this.submitBtn = this.addModal.getByRole('button', { name: 'Thêm người dùng' })
 
-        // Inputs scope trong updateModal
         this.updateNameInput = this.updateModal.locator('#name')
         this.updatePhoneInput = this.updateModal.locator('#phone')
         this.updateBtn = this.updateModal.getByRole('button', { name: 'Cập nhật' })
@@ -65,36 +61,52 @@ export class AddUserModal {
     }) {
         await this.waitForAddModal()
 
+        // ✅ highlight từng field khi fill
+        await highlightStep(this.page, this.nameInput, 200)
         await this.nameInput.fill('')
         await this.nameInput.fill(data.name)
+
+        await highlightStep(this.page, this.emailInput, 200)
         await this.emailInput.fill(data.email)
+
+        await highlightStep(this.page, this.phoneInput, 200)
         await this.phoneInput.fill(data.phone)
+
+        await highlightStep(this.page, this.passwordInput, 200)
         await this.passwordInput.fill(data.password)
 
         // Gender
+        await highlightStep(this.page, this.genderSelect, 200)
         await this.genderSelect.click()
         const dropdown = this.page.locator('.ant-select-dropdown:visible')
         await expect(dropdown).toBeVisible()
-        await dropdown.getByText(data.gender, { exact: true }).click()
+        const genderOption = dropdown.getByText(data.gender, { exact: true })
+        await highlightStep(this.page, genderOption, 200)
+        await genderOption.click()
 
         // Birthday
+        await highlightStep(this.page, this.birthdayInput, 200)
         await this.birthdayInput.click()
         const day = data.birthday.split('-')[2]
         const dayCell = this.page.locator('.ant-picker-cell')
             .filter({ hasText: new RegExp(`^${day}$`) })
             .first()
         await expect(dayCell).toBeVisible()
+        await highlightStep(this.page, dayCell, 200)
         await dayCell.click()
 
         // Role
         if (data.role === 'Admin') {
+            await highlightStep(this.page, this.adminRole, 200)
             await this.adminRole.click()
         } else {
+            await highlightStep(this.page, this.userRole, 200)
             await this.userRole.click()
         }
     }
 
     async submit() {
+        await highlightStep(this.page, this.submitBtn, 200)
         await this.submitBtn.click()
     }
 

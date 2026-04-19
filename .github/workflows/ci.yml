@@ -1,0 +1,114 @@
+name: CI (playwright)
+
+# kích hoạt workflow khi có push hoặc pull request vào nhánh main
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    # sử dụng OS ubuntu-latest  để chạy job
+    runs-on: ubuntu-latest
+    # giới hạn thời gian chạy job là 30 phút
+    timeout-minutes: 30
+  
+    steps:
+      # B1: lấy code từ repository về
+      - name: Pull code from repository (checkout)
+        uses: actions/checkout@v4
+      
+      # B2: cài đặt Node.js (phiên bản 20.0.0 hoặc mới hơn)
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      # B3: cài đặt các dependencies (library) của dự án
+      - name: Install dependencies
+        run: npm install
+
+      # B4: tải browser (chromium) để chạy test
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      # B4.1: Tạo file .env để lưu thông tin đăng nhập (nếu cần)
+      - name: Create .env file
+        run: |
+          echo "USERNAME=${{secrets.USERNAME}}" >> .env
+          echo "PASSWORD=${{secrets.PASSWORD}}" >> .env
+          echo "TOKEN_CYBERSOFT=${{secrets.TOKEN_CYBERSOFT}}" >> .env
+      # B5: chạy test bằng Playwright
+      - name: Run Playwright tests
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_FILE: test-results/report.json
+        run: |
+          # tạo folder test-results để lưu kết quả test
+          mkdir -p test-results
+
+          # chạy test với trình duyệt chromium
+          npx playwright test --project=chromium --reporter=line,json
+
+      # B6: Tạo báo cáo allure (nếu có)
+      - name: Generate Allure report
+        if: always() # luôn chạy bước này dù test có pass hay fail
+        run: |
+          # kiểm tra folder allure-results có tồn tại không
+          if [ -d "allure-results" ]; then
+            # nếu có thì tạo báo cáo allure
+            npm run -s allure:generate || true # bỏ qua lỗi nếu có
+          else
+            echo "No allure-results folder found, skipping report generation."
+          fi
+
+      # B7: Upload báo cáo allure lên GitHub Actions (nếu có)
+      - name: Upload Allure report
+        if: always() # luôn upload dù test có pass hay fail
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-allure-report
+          # nếu không tìm thấy file nào để upload thì báo warning, ko cho fail job
+          if-no-files-found: warn
+          # liệt kê tất cả file cần upload
+          path: |
+            playwright-report/
+            allure-results/
+            allure-report/
+            test-results/report.json
+
+      # B8: DĐọc file report.json -> ghi TEST_* vào GITHUB_ENV (bước Slack dùng)
+      - name: Build test summary
+        if: always()
+        run: |
+          # Không có báo cáo JSON sau test: coi mọi chỉ số = 0.
+          if [ ! -f "test-results/report.json" ]; then
+            # Ghi 4 biến vào file env của GitHub Actions (mỗi dòng KEY=VALUE).
+            printf '%s\n' TEST_PASSED=0 TEST_FAILED=0 TEST_SKIPPED=0 TEST_FLAKY=0 >> "$GITHUB_ENV"
+          else
+            # Đọc stats Playwright (expected/unexpected/skipped/flaky), append một lần vào GITHUB_ENV.
+            node -e 'const f=require("fs"),e=process.env.GITHUB_ENV,n=x=>Number(x||0),j=JSON.parse(f.readFileSync("test-results/report.json","utf8")),s=j.stats||{};f.appendFileSync(e,`TEST_PASSED=${n(s.expected)}\nTEST_FAILED=${n(s.unexpected)}\nTEST_SKIPPED=${n(s.skipped)}\nTEST_FLAKY=${n(s.flaky)}\n`)'
+          fi
+
+      # B9: Gửi thông báo test lên Slack (nếu có)
+      - name: Send Slack summary
+        if: always()
+        continue-on-error: true
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          STATUS: ${{ job.status }}
+          REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          TEST_PASSED: ${{ env.TEST_PASSED }}
+          TEST_FAILED: ${{ env.TEST_FAILED }}
+          TEST_SKIPPED: ${{ env.TEST_SKIPPED }}
+          TEST_FLAKY: ${{ env.TEST_FLAKY }}
+        run: |
+          # Chưa cấu hình webhook: thoát, tránh gọi curl với URL rỗng.
+          [ -z "$SLACK_WEBHOOK_URL" ] && exit 0
+          # Chuỗi JSON một khóa "text" — nội dung hiển thị trên Slack.
+          msg='{"text":"*Playwright CI*\nRepo: '"$REPO"'\nStatus: '"$STATUS"'\nPassed: '"$TEST_PASSED"'\nFailed: '"$TEST_FAILED"'\nSkipped: '"$TEST_SKIPPED"'\nFlaky: '"$TEST_FLAKY"'\nRun: '"$RUN_URL"'"}'
+          # Gửi POST application/json; -fsS báo lỗi rõ nếu Slack trả HTTP lỗi.
+          curl -fsS -X POST -H "Content-Type: application/json" -d "$msg" "$SLACK_WEBHOOK_URL"

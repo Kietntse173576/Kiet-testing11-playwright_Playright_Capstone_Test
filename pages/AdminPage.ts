@@ -60,35 +60,7 @@ export class AdminPage {
     await editBtn.click()
   }
 
-// ✅ DELETE USER - viết lại hoàn toàn
-// async deleteAnyUser() {
-//     // Chờ bảng load xong
-//     await this.page.waitForSelector('tbody tr', { state: 'visible' })
-  
-//     // Lấy row đầu tiên
-//     const firstRow = this.page.locator('tbody tr').first()
-//     await firstRow.waitFor({ state: 'visible' })
-  
-//     // Click nút xoá (biểu tượng thùng rác)
-//     const deleteBtn = firstRow.locator('button[aria-label="Delete"]')
-//     await deleteBtn.waitFor({ state: 'visible' })
-//     await deleteBtn.click()
-  
-//     // Chờ popup xuất hiện
-//     const popup = this.page.locator('[role="dialog"].ant-modal')
-//     await popup.waitFor({ state: 'visible', timeout: 10000 })
-  
-//     // Click nút xác nhận Xoá (màu xanh, class bg-main)
-//     const confirmBtn = popup.locator('button.bg-main')
-//     await confirmBtn.waitFor({ state: 'visible', timeout: 5000 })
-//     await confirmBtn.click()
-  
-//     // Chờ popup đóng
-//     await popup.waitFor({ state: 'hidden', timeout: 15000 })
-  
-//     // Chờ bảng render lại
-//     await this.page.waitForSelector('tbody tr', { state: 'visible', timeout: 10000 })
-//   }
+
 
 
 async deleteAnyUser() {
@@ -101,7 +73,7 @@ async deleteAnyUser() {
   await deleteBtn.waitFor({ state: 'visible' })
   await deleteBtn.click()
 
-  // ✅ Thử cả modal lẫn popconfirm
+
   const popup = this.page.locator('.ant-modal-content, .ant-popover-content').first()
   await popup.waitFor({ state: 'visible', timeout: 10000 })
 

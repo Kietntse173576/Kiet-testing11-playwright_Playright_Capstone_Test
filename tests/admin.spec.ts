@@ -65,69 +65,49 @@ test.describe('Admin page', () => {
     await addUserModal.submitUpdate()
   })
 
-  // ✅ TEST CASE 4: DELETE USER BẤT KỲ
- // ✅ TEST CASE 4: DELETE USER BẤT KỲ
-
-  // 🔥 TEST CASE 5: DELETE + VERIFY ROW BIẾN MẤT
-  // test('test case 3: xoá user bất kỳ (có verify)', async ({ page }) => {
-  //   const adminPage = new AdminPage(page)
-  
-  //   await adminPage.goToLastPage()
-  
-  //   // Lấy text row đầu tiên TRƯỚC khi xoá
-  //   const firstRow = page.locator('tbody tr').first()
-  //   await firstRow.waitFor({ state: 'visible' })
-  //   const rowText = await firstRow.innerText()
-  
-  //   await adminPage.deleteAnyUser()
-  
-  //   // Verify row đó đã biến mất
-  //   await expect(page.locator('tbody tr').filter({ hasText: rowText })).toHaveCount(0)
-  // })
-
   test('test case 3: xoá user bất kỳ (có verify)', async ({ page }) => {
     const adminPage = new AdminPage(page)
   
-    // ✅ Chờ modal cũ đóng hẳn (nếu TC2 vừa chạy xong còn sót)
+  
     await page.waitForSelector('.ant-modal-content', { state: 'hidden', timeout: 10000 }).catch(() => null)
   
     await adminPage.goToLastPage()
   
-    // Lấy text row đầu tiên TRƯỚC khi xoá
+
     const firstRow = page.locator('tbody tr').first()
     await firstRow.waitFor({ state: 'visible' })
     const rowText = await firstRow.innerText()
   
     await adminPage.deleteAnyUser()
   
-    // Verify row đó đã biến mất
+
     await expect(page.locator('tbody tr').filter({ hasText: rowText })).toHaveCount(0)
   })
 
   test('test case 4: truy cập quản lý vị trí và mở form thêm vị trí', async ({ page }) => {
     const adminPage = new AdminPage(page)
   
-    // Click menu "Quản lý vị trí"
+
     await adminPage.locationManagementMenu.click()
   
-    // Verify URL đúng
+
     await expect(page).toHaveURL(/\/admin\/location/)
   
-    // Chờ nút thêm vị trí hiển thị
+
     await expect(adminPage.addLocationBtn).toBeVisible()
   
-    // Click nút thêm vị trí
+
     await adminPage.addLocationBtn.click()
   })
   test("TC5: Thêm vị trí mới thành công", async ({ page }) => {
-    // ✅ Dùng đúng URL
+
     await page.goto("https://demo5.cybersoft.edu.vn/admin/location");
     await page.waitForLoadState("networkidle");
   
-    // Click button thêm vị trí mới
+
     await page.locator('button:has-text("Thêm vị trí mới")').click();
   
-    // Chờ popup xuất hiện
+
     await page.waitForSelector(".ant-modal-content", { timeout: 10000 });
   
     const addLocationPage = new AddLocationPage(page);
@@ -147,7 +127,7 @@ test.describe('Admin page', () => {
   });
 
   test("TC6: Cập nhật vị trí bất kỳ", async ({ page }) => {
-    // ✅ Đặt test.fail() ở đầu — đây là known bug
+ 
     test.fail()
   
     const adminPage = new AdminPage(page)
@@ -167,7 +147,7 @@ test.describe('Admin page', () => {
   
     await page.waitForTimeout(2000)
   
-    // Verify bug: modal không đóng + có thông báo lỗi
+    
     await expect(page.locator('.ant-modal-content')).toBeVisible()
     
     const errorMsg = page.locator('.ant-message-notice-error').first()

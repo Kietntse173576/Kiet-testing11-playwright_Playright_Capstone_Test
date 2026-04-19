@@ -1,5 +1,6 @@
 import { Locator, Page } from "@playwright/test";
 import { join } from "node:path";
+import { highlightStep } from "../tests/utils/highlightStep";
 
 export class AddRoomModal {
   readonly page: Page
@@ -14,16 +15,16 @@ export class AddRoomModal {
   readonly giaPhongInput: Locator
   readonly submitBtn: Locator
 
-  readonly mayGiatToggle: Locator    // #mayGiat
-readonly banLaToggle: Locator      // #banLa  
-readonly tiviToggle: Locator       // #tivi
-readonly dieuHoaToggle: Locator    // #dieuHoa
-readonly wifiToggle: Locator       // #wifi
-readonly bepToggle: Locator        // #bep
-readonly doXeToggle: Locator       // #doXe
-readonly hoBoisToggle: Locator     // #hoBoi
+  readonly mayGiatToggle: Locator
+  readonly banLaToggle: Locator
+  readonly tiviToggle: Locator
+  readonly dieuHoaToggle: Locator
+  readonly wifiToggle: Locator
+  readonly bepToggle: Locator
+  readonly doXeToggle: Locator
+  readonly hoBoisToggle: Locator
 
-readonly updateBtn: Locator
+  readonly updateBtn: Locator
 
   constructor(page: Page) {
     this.page = page
@@ -33,7 +34,7 @@ readonly updateBtn: Locator
     this.moTaInput = page.locator('#moTa')
     this.soKhachInput = page.locator('#khach')
     this.soPhongNguInput = page.locator('#phongNgu')
-    this.soGiuongNguInput = page.locator('#giuong') 
+    this.soGiuongNguInput = page.locator('#giuong')
     this.soPhongTamInput = page.locator('#phongTam')
     this.giaPhongInput = page.locator('#giaTien')
     this.submitBtn = page.locator('button:has-text("Thêm mới")')
@@ -45,24 +46,26 @@ readonly updateBtn: Locator
     this.bepToggle = page.locator('#bep')
     this.doXeToggle = page.locator('#doXe')
     this.hoBoisToggle = page.locator('#hoBoi')
-
     this.updateBtn = page.locator('button:has-text("Cập nhật")')
-    
   }
 
   async chonViTri(tenViTri: string): Promise<void> {
-    await this.page.locator('#maViTri').click()
+    const dropdown = this.page.locator('#maViTri')
+    await highlightStep(this.page, dropdown, 200)
+    await dropdown.click()
     await this.page.waitForSelector('.ant-select-dropdown', { state: 'visible', timeout: 10000 })
 
-    // ✅ Dùng filter hasText
-    await this.page.locator('.ant-select-item-option-content')
+    const option = this.page.locator('.ant-select-item-option-content')
       .filter({ hasText: tenViTri })
       .first()
-      .click()
+    await highlightStep(this.page, option, 200)
+    await option.click()
   }
 
   async uploadHinhAnh(fileName: string): Promise<void> {
     const filePath = join(__dirname, "..", "tests", "data", fileName)
+    const uploadLabel = this.page.locator('label[for="hinhAnh"]')
+    await highlightStep(this.page, uploadLabel, 200)
     await this.uploadImageInput.setInputFiles(filePath)
     await this.page.waitForTimeout(2000)
   }
@@ -79,14 +82,35 @@ readonly updateBtn: Locator
     fileName: string
   }): Promise<void> {
     await this.uploadHinhAnh(data.fileName)
+
+    await highlightStep(this.page, this.tenPhongInput, 200)
     await this.tenPhongInput.fill(data.tenPhong)
+
+    await highlightStep(this.page, this.moTaInput, 200)
     await this.moTaInput.fill(data.moTa)
+
     await this.chonViTri(data.tenViTri)
+
+    await highlightStep(this.page, this.soKhachInput, 200)
     await this.soKhachInput.fill(data.soKhach)
+
+    await highlightStep(this.page, this.soPhongNguInput, 200)
     await this.soPhongNguInput.fill(data.soPhongNgu)
+
+    await highlightStep(this.page, this.soGiuongNguInput, 200)
     await this.soGiuongNguInput.fill(data.soGiuongNgu)
+
+    await highlightStep(this.page, this.soPhongTamInput, 200)
     await this.soPhongTamInput.fill(data.soPhongTam)
+
+    await highlightStep(this.page, this.giaPhongInput, 200)
     await this.giaPhongInput.fill(data.giaPhong)
+  }
+
+  async submit(): Promise<void> {
+    await this.submitBtn.waitFor({ state: 'visible', timeout: 10000 })
+    await highlightStep(this.page, this.submitBtn, 200)
+    await this.submitBtn.click()
   }
 
   async clickEditBtn(index: number = 0): Promise<void> {
@@ -95,7 +119,7 @@ readonly updateBtn: Locator
     await editBtns.nth(index).click()
     await this.page.waitForSelector('.ant-modal-content', { timeout: 10000 })
   }
-  
+
   async fillUpdateAndSubmit(data: {
     tenPhong?: string
     moTa?: string
@@ -133,16 +157,8 @@ readonly updateBtn: Locator
       await this.giaPhongInput.clear()
       await this.giaPhongInput.fill(data.giaPhong)
     }
-  
+
     await this.updateBtn.waitFor({ state: 'visible', timeout: 10000 })
     await this.updateBtn.click()
   }
-
-  async submit(): Promise<void> {
-    await this.submitBtn.waitFor({ state: 'visible', timeout: 10000 })
-    await this.submitBtn.click()
-  }
-
-
-
 }
