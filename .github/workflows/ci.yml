@@ -50,7 +50,7 @@ jobs:
           mkdir -p test-results
 
           # chạy test với trình duyệt chromium
-          npx playwright test --project=chromium --reporter=line,json
+          npx playwright test --project=chromium --workers=4 --reporter=line,json
 
       # B6: Tạo báo cáo allure (nếu có)
       - name: Generate Allure report
