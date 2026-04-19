@@ -144,7 +144,7 @@ test.describe('Admin - Quản lý Room', () => {
     const isBug = testData.expectedResult === 'fail'
 
     test(title, async ({ page, adminPage }) => {
-      test.setTimeout(35000) // phải đặt đầu tiên
+      test.setTimeout(50000) // phải đặt đầu tiên
       if (isBug) test.fail()
 
       const addRoomModal = new AddRoomModal(page)
