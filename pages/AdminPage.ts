@@ -1,4 +1,6 @@
 
+
+
 // import { expect, Locator, Page } from '@playwright/test'
 
 // export class AdminPage {
@@ -10,7 +12,6 @@
 //   readonly roomManagementMenu: Locator
 //   readonly bookingManagementMenu: Locator
 //   readonly addUserBtn: Locator
-
 //   readonly addLocationBtn: Locator
 
 //   constructor(page: Page) {
@@ -21,9 +22,7 @@
 //     this.locationManagementMenu = this.page.getByRole('link', { name: 'Quản lý vị trí' })
 //     this.roomManagementMenu = this.page.getByRole('link', { name: 'Quản lý Room' })
 //     this.bookingManagementMenu = this.page.getByRole('link', { name: 'Quản lý Booking' })
-
 //     this.addUserBtn = this.page.getByRole('button', { name: /\+ Thêm người dùng/i })
-
 //     this.addLocationBtn = this.page.getByRole('button', { name: /\+ Thêm vị trí mới/i })
 //   }
 
@@ -48,44 +47,59 @@
 
 //   async clickEditBtnByEmail(email: string) {
 //     const modal = this.page.locator('.ant-modal-content')
-//     await modal.waitFor({ state: 'hidden', timeout: 10000 })
+
+//     await modal.waitFor({ state: 'hidden', timeout: 20000 }).catch(() => null)
+
+
+//     await this.page.waitForTimeout(3000)
 
 //     await this.goToLastPage()
 //     await this.page.waitForSelector('table', { state: 'visible' })
 
 //     const row = this.page.locator('tbody tr').filter({ hasText: email })
-//     await row.waitFor({ state: 'visible', timeout: 10000 })
+//     await row.waitFor({ state: 'visible', timeout: 20000 })
 
 //     const editBtn = row.locator('button[aria-label="Actions"]')
 //     await editBtn.click()
 //   }
 
+//   async deleteAnyUser() {
+//     await this.page.waitForSelector('tbody tr', { state: 'visible' })
+
+//     const firstRow = this.page.locator('tbody tr').first()
+//     await firstRow.waitFor({ state: 'visible' })
+
+//     const deleteBtn = firstRow.locator('button[aria-label="Delete"]')
+//     await deleteBtn.waitFor({ state: 'visible', timeout: 10000 })
+//     await deleteBtn.click()
 
 
+//     await this.page.waitForTimeout(2000)
 
-// async deleteAnyUser() {
-//   await this.page.waitForSelector('tbody tr', { state: 'visible' })
+//     const popup = this.page.locator([
+//       '.ant-modal-content',
+//       '.ant-popover-content',
+//       '.ant-modal',
+//       '[role="dialog"]',
+//       '.ant-popconfirm'
+//     ].join(', ')).first()
 
-//   const firstRow = this.page.locator('tbody tr').first()
-//   await firstRow.waitFor({ state: 'visible' })
+//     await popup.waitFor({ state: 'visible', timeout: 20000 })
 
-//   const deleteBtn = firstRow.locator('button[aria-label="Delete"]')
-//   await deleteBtn.waitFor({ state: 'visible' })
-//   await deleteBtn.click()
+//     const confirmBtn = popup.locator([
+//       'button.bg-main',
+//       'button:has-text("Xác nhận")',
+//       'button:has-text("OK")',
+//       'button:has-text("Xoá")',
+//     ].join(', ')).first()
 
+//     await confirmBtn.waitFor({ state: 'visible', timeout: 10000 })
+//     await confirmBtn.click()
 
-//   const popup = this.page.locator('.ant-modal-content, .ant-popover-content').first()
-//   await popup.waitFor({ state: 'visible', timeout: 10000 })
-
-//   const confirmBtn = popup.locator('button.bg-main, button:has-text("Xác nhận"), button:has-text("OK")').first()
-//   await confirmBtn.waitFor({ state: 'visible', timeout: 5000 })
-//   await confirmBtn.click()
-
-//   await popup.waitFor({ state: 'hidden', timeout: 15000 })
-//   await this.page.waitForSelector('tbody tr', { state: 'visible', timeout: 10000 })
+//     await popup.waitFor({ state: 'hidden', timeout: 20000 })
+//     await this.page.waitForSelector('tbody tr', { state: 'visible', timeout: 15000 })
+//   }
 // }
-// }
-
 
 
 import { expect, Locator, Page } from '@playwright/test'
@@ -135,14 +149,15 @@ export class AdminPage {
   async clickEditBtnByEmail(email: string) {
     const modal = this.page.locator('.ant-modal-content')
 
+    // ✅ Chờ modal đóng hẳn sau khi submit
     await modal.waitFor({ state: 'hidden', timeout: 20000 }).catch(() => null)
-
 
     await this.page.waitForTimeout(3000)
 
     await this.goToLastPage()
     await this.page.waitForSelector('table', { state: 'visible' })
 
+    // ✅ Tăng timeout lên 20s cho CI
     const row = this.page.locator('tbody tr').filter({ hasText: email })
     await row.waitFor({ state: 'visible', timeout: 20000 })
 
@@ -150,40 +165,39 @@ export class AdminPage {
     await editBtn.click()
   }
 
-  async deleteAnyUser() {
-    await this.page.waitForSelector('tbody tr', { state: 'visible' })
+  // async deleteAnyUser() {
+  //   await this.page.waitForSelector('tbody tr', { state: 'visible' })
 
-    const firstRow = this.page.locator('tbody tr').first()
-    await firstRow.waitFor({ state: 'visible' })
+  //   const firstRow = this.page.locator('tbody tr').first()
+  //   await firstRow.waitFor({ state: 'visible' })
 
-    const deleteBtn = firstRow.locator('button[aria-label="Delete"]')
-    await deleteBtn.waitFor({ state: 'visible', timeout: 10000 })
-    await deleteBtn.click()
+  //   const deleteBtn = firstRow.locator('button[aria-label="Delete"]')
+  //   await deleteBtn.waitFor({ state: 'visible', timeout: 10000 })
+  //   await deleteBtn.click()
 
+  //   await this.page.waitForTimeout(2000)
 
-    await this.page.waitForTimeout(2000)
+  //   const popup = this.page.locator([
+  //     '.ant-modal-content',
+  //     '.ant-popover-content',
+  //     '.ant-modal',
+  //     '[role="dialog"]',
+  //     '.ant-popconfirm'
+  //   ].join(', ')).first()
 
-    const popup = this.page.locator([
-      '.ant-modal-content',
-      '.ant-popover-content',
-      '.ant-modal',
-      '[role="dialog"]',
-      '.ant-popconfirm'
-    ].join(', ')).first()
+  //   await popup.waitFor({ state: 'visible', timeout: 20000 })
 
-    await popup.waitFor({ state: 'visible', timeout: 20000 })
+  //   const confirmBtn = popup.locator([
+  //     'button.bg-main',
+  //     'button:has-text("Xác nhận")',
+  //     'button:has-text("OK")',
+  //     'button:has-text("Xoá")',
+  //   ].join(', ')).first()
 
-    const confirmBtn = popup.locator([
-      'button.bg-main',
-      'button:has-text("Xác nhận")',
-      'button:has-text("OK")',
-      'button:has-text("Xoá")',
-    ].join(', ')).first()
+  //   await confirmBtn.waitFor({ state: 'visible', timeout: 10000 })
+  //   await confirmBtn.click()
 
-    await confirmBtn.waitFor({ state: 'visible', timeout: 10000 })
-    await confirmBtn.click()
-
-    await popup.waitFor({ state: 'hidden', timeout: 20000 })
-    await this.page.waitForSelector('tbody tr', { state: 'visible', timeout: 15000 })
-  }
+  //   await popup.waitFor({ state: 'hidden', timeout: 20000 })
+  //   await this.page.waitForSelector('tbody tr', { state: 'visible', timeout: 15000 })
+  // }
 }
