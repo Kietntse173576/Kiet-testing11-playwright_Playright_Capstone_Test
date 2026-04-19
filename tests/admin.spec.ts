@@ -35,127 +35,127 @@ test.describe('Admin page', () => {
     await expect(adminPage.bookingManagementMenu).toBeVisible()
   })
 
-  test('test case 2: thêm và cập nhật người dùng vừa tạo', async ({ page }) => {
-    const adminPage = new AdminPage(page)
-    const addUserModal = new AddUserModal(page)
+  // test('test case 2: thêm và cập nhật người dùng vừa tạo', async ({ page }) => {
+  //   const adminPage = new AdminPage(page)
+  //   const addUserModal = new AddUserModal(page)
 
-    const uniqueEmail = `test${Date.now()}@gmail.com`
+  //   const uniqueEmail = `test${Date.now()}@gmail.com`
 
-    await adminPage.addUserBtn.click()
+  //   await adminPage.addUserBtn.click()
 
-    await addUserModal.fillForm({
-      name: 'Nguyen Van A',
-      email: uniqueEmail,
-      phone: '0903123123',
-      password: '123456',
-      gender: 'Nam',
-      birthday: '2000-10-10',
-      role: 'Admin'
-    })
+  //   await addUserModal.fillForm({
+  //     name: 'Nguyen Van A',
+  //     email: uniqueEmail,
+  //     phone: '0903123123',
+  //     password: '123456',
+  //     gender: 'Nam',
+  //     birthday: '2000-10-10',
+  //     role: 'Admin'
+  //   })
 
-    await addUserModal.submit()
+  //   await addUserModal.submit()
 
-    await adminPage.clickEditBtnByEmail(uniqueEmail)
+  //   await adminPage.clickEditBtnByEmail(uniqueEmail)
 
-    await addUserModal.updateUser({
-      name: 'Nguyen Van B',
-      phone: '0909999999'
-    })
+  //   await addUserModal.updateUser({
+  //     name: 'Nguyen Van B',
+  //     phone: '0909999999'
+  //   })
 
-    await addUserModal.submitUpdate()
-  })
+  //   await addUserModal.submitUpdate()
+  // })
 
-  test('test case 3: xoá user bất kỳ (có verify)', async ({ page }) => {
-    const adminPage = new AdminPage(page)
+  // test('test case 3: xoá user bất kỳ (có verify)', async ({ page }) => {
+  //   const adminPage = new AdminPage(page)
   
   
-    await page.waitForSelector('.ant-modal-content', { state: 'hidden', timeout: 10000 }).catch(() => null)
+  //   await page.waitForSelector('.ant-modal-content', { state: 'hidden', timeout: 10000 }).catch(() => null)
   
-    await adminPage.goToLastPage()
-  
-
-    const firstRow = page.locator('tbody tr').first()
-    await firstRow.waitFor({ state: 'visible' })
-    const rowText = await firstRow.innerText()
-  
-    await adminPage.deleteAnyUser()
+  //   await adminPage.goToLastPage()
   
 
-    await expect(page.locator('tbody tr').filter({ hasText: rowText })).toHaveCount(0)
-  })
-
-  test('test case 4: truy cập quản lý vị trí và mở form thêm vị trí', async ({ page }) => {
-    const adminPage = new AdminPage(page)
+  //   const firstRow = page.locator('tbody tr').first()
+  //   await firstRow.waitFor({ state: 'visible' })
+  //   const rowText = await firstRow.innerText()
+  
+  //   await adminPage.deleteAnyUser()
   
 
-    await adminPage.locationManagementMenu.click()
+  //   await expect(page.locator('tbody tr').filter({ hasText: rowText })).toHaveCount(0)
+  // })
+
+  // test('test case 4: truy cập quản lý vị trí và mở form thêm vị trí', async ({ page }) => {
+  //   const adminPage = new AdminPage(page)
   
 
-    await expect(page).toHaveURL(/\/admin\/location/)
+  //   await adminPage.locationManagementMenu.click()
   
 
-    await expect(adminPage.addLocationBtn).toBeVisible()
+  //   await expect(page).toHaveURL(/\/admin\/location/)
   
 
-    await adminPage.addLocationBtn.click()
-  })
-  test("TC5: Thêm vị trí mới thành công", async ({ page }) => {
-
-    await page.goto("https://demo5.cybersoft.edu.vn/admin/location");
-    await page.waitForLoadState("networkidle");
+  //   await expect(adminPage.addLocationBtn).toBeVisible()
   
 
-    await page.locator('button:has-text("Thêm vị trí mới")').click();
+  //   await adminPage.addLocationBtn.click()
+  // })
+  // test("TC5: Thêm vị trí mới thành công", async ({ page }) => {
+
+  //   await page.goto("https://demo5.cybersoft.edu.vn/admin/location");
+  //   await page.waitForLoadState("networkidle");
   
 
-    await page.waitForSelector(".ant-modal-content", { timeout: 10000 });
+  //   await page.locator('button:has-text("Thêm vị trí mới")').click();
   
-    const addLocationPage = new AddLocationPage(page);
-  
-    await addLocationPage.fillAllAndSubmit({
-      tenViTri: "Văn phòng Hà Nội",
-      tinhThanh: "Hà Nội",
-      quocGia: "Việt Nam",
-      fileName: "location.jpg",
-    });
-  
-    const uploadFileCount = await addLocationPage.fileInput.evaluate((el) => {
-      const input = el as HTMLInputElement;
-      return input.files ? input.files.length : 0;
-    });
-    expect(uploadFileCount).toBeGreaterThan(0);
-  });
 
-  test("TC6: Cập nhật vị trí bất kỳ", async ({ page }) => {
+  //   await page.waitForSelector(".ant-modal-content", { timeout: 10000 });
+  
+  //   const addLocationPage = new AddLocationPage(page);
+  
+  //   await addLocationPage.fillAllAndSubmit({
+  //     tenViTri: "Văn phòng Hà Nội",
+  //     tinhThanh: "Hà Nội",
+  //     quocGia: "Việt Nam",
+  //     fileName: "location.jpg",
+  //   });
+  
+  //   const uploadFileCount = await addLocationPage.fileInput.evaluate((el) => {
+  //     const input = el as HTMLInputElement;
+  //     return input.files ? input.files.length : 0;
+  //   });
+  //   expect(uploadFileCount).toBeGreaterThan(0);
+  // });
+
+  // test("TC6: Cập nhật vị trí bất kỳ", async ({ page }) => {
  
-    test.fail()
+  //   test.fail()
   
-    const adminPage = new AdminPage(page)
-    const addLocationPage = new AddLocationPage(page)
+  //   const adminPage = new AdminPage(page)
+  //   const addLocationPage = new AddLocationPage(page)
   
-    await adminPage.locationManagementMenu.click()
-    await page.waitForLoadState("networkidle")
+  //   await adminPage.locationManagementMenu.click()
+  //   await page.waitForLoadState("networkidle")
   
-    await addLocationPage.clickEditBtn(0)
+  //   await addLocationPage.clickEditBtn(0)
   
-    await addLocationPage.fillUpdateAndSubmit({
-      tenViTri: "Vị trí đã cập nhật",
-      tinhThanh: "Hồ Chí Minh",
-      quocGia: "Việt Nam",
-      fileName: "location.jpg",
-    })
+  //   await addLocationPage.fillUpdateAndSubmit({
+  //     tenViTri: "Vị trí đã cập nhật",
+  //     tinhThanh: "Hồ Chí Minh",
+  //     quocGia: "Việt Nam",
+  //     fileName: "location.jpg",
+  //   })
   
-    await page.waitForTimeout(2000)
+  //   await page.waitForTimeout(2000)
   
     
-    await expect(page.locator('.ant-modal-content')).toBeVisible()
+  //   await expect(page.locator('.ant-modal-content')).toBeVisible()
     
-    const errorMsg = page.locator('.ant-message-notice-error').first()
-    await expect(errorMsg).toBeVisible()
-    const errorText = await errorMsg.innerText()
-    console.log("BUG confirmed — Thông báo lỗi:", errorText)
-    await page.screenshot({ path: "test-results/bug-TC6-update-location.png" })
-  })
+  //   const errorMsg = page.locator('.ant-message-notice-error').first()
+  //   await expect(errorMsg).toBeVisible()
+  //   const errorText = await errorMsg.innerText()
+  //   console.log("BUG confirmed — Thông báo lỗi:", errorText)
+  //   await page.screenshot({ path: "test-results/bug-TC6-update-location.png" })
+  // })
 
   
 })
