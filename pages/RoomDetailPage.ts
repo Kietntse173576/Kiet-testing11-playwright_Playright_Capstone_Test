@@ -1,4 +1,4 @@
-import { Locator, Page } from '@playwright/test'
+import { expect, Locator, Page } from '@playwright/test'
 import { highlightStep } from '../tests/utils/highlightStep'
 
 export class RoomDetailPage {
@@ -18,28 +18,18 @@ export class RoomDetailPage {
 
 
 
-async goToRoomDetail(): Promise<void> {
-    // Bước 1: Click "Toàn bộ nhà"
-    const toanBoNhaImg = this.page.locator('img[src*="mjwqhra4wbzlvoo2pe27"]')
-    await toanBoNhaImg.waitFor({ state: 'visible', timeout: 10000 })
-    await highlightStep(this.page, toanBoNhaImg, 200)
-    await toanBoNhaImg.click()
+  async goToRoomDetail(): Promise<void> {
+    // Dùng đúng domain mà fixture đã login
+    await this.page.goto('https://demo5.cybersoft.edu.vn/room-detail/3', {
+        waitUntil: 'networkidle'
+    })
 
-    await this.page.waitForTimeout(2000)
+    // Verify đã login - nếu bị redirect về login thì fail luôn
+    await expect(this.page.locator('alert:has-text("Cần đăng nhập")')).toHaveCount(0, { timeout: 5000 })
 
-
-    const roomCardLink = this.page.getByRole('link', {
-        name: /Phòng sang trọng với ban công tại D\.1/
-    }).first()
-
-    await roomCardLink.waitFor({ state: 'visible', timeout: 15000 })
-    await highlightStep(this.page, roomCardLink, 200)
-    await roomCardLink.click()
-
-  
-    await this.page.waitForLoadState('networkidle', { timeout: 20000 })
+    // Chờ rating stars load
+    await this.page.locator('ul.ant-rate').waitFor({ state: 'visible', timeout: 15000 })
 }
-
   async chonSoSao(soSao: 1 | 2 | 3 | 4 | 5): Promise<void> {
     const starItem = this.ratingStars.nth(soSao - 1)
     const starSecond = starItem.locator('.ant-rate-star-second')
